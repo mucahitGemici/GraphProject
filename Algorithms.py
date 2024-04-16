@@ -336,7 +336,7 @@ def Dijskstra_Max(g, sKey):
             index = Q.index((g.getD(str(v)), int(v)))
             result = Relax_Max(g, str(u), str(v))
             if result == True:
-                Q[index] = (g.getD(str(v)), int(v))
+                Q[index] = (g.getD(str(v)), int(v)) # increase key
                 heapq._heapify_max(Q)
     # below for debug purposes
     #print("results:")
@@ -453,8 +453,30 @@ def A_Star_Based_Longest_Simple_Path(g):
     print("For A* Based, Lmax:", Lmax)
     print("--- End of A* Based Longest Simple Path ---")
 
+def BFS_Modified(g, sKey, usedKeys):
+    for u in g.vertices:
+        if u in usedKeys:
+            continue
+        g.setColor(u, "white")
+        g.setD(u, math.inf)
+        g.setPi(u, "nil")
+    g.setColor(sKey, "gray")
+    g.setD(sKey,0)
+    g.setPi(sKey, "nil")
+    Q = queue.Queue() # first in first out queue, keys will be stored inside of it
+    Q.put(sKey)
+    while Q.qsize() > 0:
+        uKey = Q.get()
+        for vKey in g.vertices[str(uKey)]:
+            if g.getColor()[vKey] == "white":
+                g.setColor(vKey, "gray")
+                newD = g.getD(uKey) + 1
+                g.setD(vKey, newD)
+                g.setPi(vKey, uKey)
+                Q.put(vKey)
+        g.setColor(uKey, "black")
+
 def BFS(g, sKey):
-    print("- BFS -")
     for u in g.vertices:
         g.setColor(u, "white")
         g.setD(u, math.inf)
@@ -475,53 +497,79 @@ def BFS(g, sKey):
                 Q.put(vKey)
         g.setColor(uKey, "black")
 
-    print("- End of BFS -")
 
-def BFS_Heuristic(g):
-    print("--- BFS Based Longest Simple Path ---")
+def BFS_Heuristic_With_Rememberization(g):
+    print("--- BFS Based Longest Simple Path With Rememberization ---")
     # we follow a similar approach with dfs longest simple path
     graphLcc = CalculateLCC(g)
     vLcc = len(graphLcc)
     Lmax = 0
-    for i in range(int(math.sqrt(vLcc)) + 1):
-        s1 = random.choice(graphLcc)
-        BFS(g,s1)
-        max_d_key = Get_Largest_D_Key(g, s1)
-        #print("max d key: ", max_d_key)
-        BFS(g,max_d_key)
-        max_d_key_2 = Get_Largest_D_Key(g, max_d_key)
-        #print("max d key2: ", max_d_key_2)
-        BFS(g, max_d_key_2)
-        max_d_key_3 = Get_Largest_D_Key(g, max_d_key_2)
-        Lmax = max(Lmax, g.getD(max_d_key), g.getD(max_d_key_2), g.getD(max_d_key_3))
-    print("For BFS Heuristic, Lmax: ", Lmax)
-    print("--- End of BFS Based Longest Simple Path ---")
+    usedKeys = []
+    print("BFS Heuristic With Rememberization will be called #",2*len(graphLcc)," times")
+    numTimes = 0
+    for v in graphLcc:
+        numTimes += 1
+        print("BFS Heuristic #", numTimes)
+        BFS_Modified(g, v, usedKeys)
+        usedKeys.append(v)
+        max_d_key = Get_Largest_D_Key(g,v)
+        numTimes += 1
+        print("BFS Heuristic #", numTimes)
+        BFS_Modified(g, max_d_key, usedKeys)
+        max_d_key_2 = Get_Largest_D_Key(g,max_d_key)
+        Lmax = max(Lmax, g.getD(max_d_key), g.getD(max_d_key_2))
+    print("For BFS Heuristic With Rememberization, Lmax:", Lmax)
 
+def BFS_Longest_Normal(g):
+    print("--- BFS Based Longest Simple Path ---")
+    # we follow a similar approach with dfs longest simple path
+    graphLcc = CalculateLCC(g)
+    Lmax = 0
+    numTimes = 0
+    print("BFS Heuristic (normal) will be called #", 2 * len(graphLcc), " times")
+    for v in graphLcc:
+        numTimes += 1
+        print("BFS Heuristic #", numTimes)
+        BFS(g, v)
+        max_d_key = Get_Largest_D_Key(g, v)
+        numTimes += 1
+        print("BFS Heuristic #", numTimes)
+        BFS(g, max_d_key)
+        max_d_key_2 = Get_Largest_D_Key(g, max_d_key)
+        Lmax = max(Lmax, g.getD(max_d_key), g.getD(max_d_key_2))
+    print("For Normal BFS Heuristic, Lmax:", Lmax)
 # testing field
-fileName = "graph_6_n_500_r_0_055"
+#fileName = "graph_6_n_500_r_0_055"
 #Generate_Geometric_Graph(100, 0.15, fileName)
-graph = Read_Geometric_Graph(fileName+".edges")
-Print_Simulation_Results(graph)
+#graph = Read_Geometric_Graph(fileName+".edges")
+#Print_Simulation_Results(graph)
 #DFS_Based_Longest_Simple_Path(graph)
 #Dijkstra_Based_Longest_Simple_Path(graph)
 #A_Star_Based_Longest_Simple_Path(graph)
-#BFS_Heuristic(graph)
+#BFS_Heuristic_With_Rememberization(graph)
+#BFS_Longest_Normal(graph)
 
 #onlineGraph = Read_Online_Graph("inf-power.mtx",3)
 #Print_Simulation_Results(onlineGraph)
 #sys.setrecursionlimit(2000)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
+#BFS_Heuristic_With_Rememberization(onlineGraph)
+#BFS_Longest_Normal(onlineGraph)
 
-#onlineGraph = Read_Online_Graph("DSJC500-5.mtx", 2)
-#Print_Simulation_Results(onlineGraph)
+onlineGraph = Read_Online_Graph("DSJC500-5.mtx", 2)
+Print_Simulation_Results(onlineGraph)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
+#BFS_Heuristic_With_Rememberization(onlineGraph)
+#BFS_Longest_Normal(onlineGraph)
 
 #onlineGraph = Read_Online_Graph("inf-euroroad.edges",2)
 #Print_Simulation_Results(onlineGraph)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
+#BFS_Longest_Normal(onlineGraph)
+#BFS_Heuristic_With_Rememberization(onlineGraph)
 
 
 

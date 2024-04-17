@@ -14,8 +14,6 @@ class Vertex:
         if neighbor.name not in self.neighbors:
             self.neighbors.append(neighbor.name)
             neighbor.neighbors.append(self.name)
-            #self.neighbors = sorted(self.neighbors)
-            #neighbor.neighbors = sorted(neighbor.neighbors)
 
     def add_neighbors(self, neighbors):
         for neighbor in neighbors:
@@ -128,6 +126,7 @@ class Graph:
         del self.fs[key]
         del self.hs[key]
 
+# TESTING GRAPH CLASS
 a = Vertex('A', 0, 0.456)
 b = Vertex('B',0 ,0.1)
 c = Vertex('C',0,0)
@@ -149,7 +148,7 @@ def howToGenerateGraph():
     print(g.printGraph())
 
 
-def howToUseGraph():
+def howToUseGraph(g):
     for idx, v in enumerate(g.vertices):
         print(v)
         print("x:", g.getXpositions()[v])

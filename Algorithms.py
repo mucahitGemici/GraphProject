@@ -453,7 +453,7 @@ def A_Star_Based_Longest_Simple_Path(g):
     print("For A* Based, Lmax:", Lmax)
     print("--- End of A* Based Longest Simple Path ---")
 
-def BFS_Modified(g, sKey, usedKeys):
+def BFS_Modified_For_V2(g, sKey, usedKeys):
     for u in g.vertices:
         if u in usedKeys:
             continue
@@ -497,13 +497,15 @@ def BFS(g, sKey):
                 Q.put(vKey)
         g.setColor(uKey, "black")
 
-def BFS_OPT3(g, sKey, calculatedKeys):
+def BFS_Modified_For_V3(g, sKey, calculatedKeys):
     numUsed = 0
+    numNotUsed = 0
     for u in g.vertices:
         if u in calculatedKeys:
             numUsed += 1
-            #print("vertex ", u, " is used before., #",numUsed)
+            g.setD(u, math.inf)
             continue
+        numNotUsed += 1
         #print("vertex ", u," is NOT USED before.")
         g.setColor(u, "white")
         g.setD(u, math.inf)
@@ -524,159 +526,113 @@ def BFS_OPT3(g, sKey, calculatedKeys):
                 Q.put(vKey)
         g.setColor(uKey, "black")
 
-def Get_Used_Keys_For_BFS_Opt3(g):
-    randomVertex = Get_A_Source_Node(g)
-    key_for_biggest_d = Get_Largest_D_Key(g, randomVertex)
-    while(g.getD(key_for_biggest_d) == math.inf):
-        randomVertex = Get_A_Source_Node(g)
-        key_for_biggest_d = Get_Largest_D_Key(g, randomVertex)
-    #print("highest d: ", g.getD(key_for_biggest_d))
-    Get_Keys_Recursively(g, key_for_biggest_d)
-    #print("usedKeys: ", usedKeys)
-
-def Get_Keys_Recursively(g, vertexKey):
-    #print("checking for the parent of ", vertexKey)
-    parentVertexKey = g.getPi(vertexKey)
-    #print("parent: ", parentVertexKey)
-    if parentVertexKey != "nil":
-        usedKeys.append(parentVertexKey)
-    if parentVertexKey == "nil":
-        return
-    else:
-        Get_Keys_Recursively(g, parentVertexKey)
+def Get_Used_Keys_For_BFS_V3(g, usedKeys, largestDkey):
+    parentKey = g.getPi(largestDkey)
+    if (parentKey != "nil") and (parentKey not in usedKeys):
+        usedKeys.append(parentKey)
+    while parentKey != "nil":
+        parentKey = g.getPi(parentKey)
+        if (parentKey != "nil") and (parentKey not in usedKeys):
+            usedKeys.append(parentKey)
+    return usedKeys
 
 
-def BFS_Heuristic_With_Rememberization(g):
-    print("--- BFS Based Longest Simple Path With Rememberization ---")
+def BFS_Heuristic_V3(g):
+    print("--- BFS Heuristic V3 ---")
+    path = []
+    graphLcc = CalculateLCC(g)
+    sKey = random.choice(graphLcc)
+    vLcc = len(graphLcc)
+    Lmax = 0
+    for v in range(int(math.sqrt(vLcc))):
+        BFS_Modified_For_V3(g, sKey, path)
+        highest_d_key = Get_Largest_D_Key(g, sKey)
+        if highest_d_key not in path:
+            path.append(highest_d_key)
+        path = Get_Used_Keys_For_BFS_V3(g, path, highest_d_key)
+        sKey = highest_d_key
+    Lmax = len(path)
+    print("For custom BFS Heuristic, Lmax:", Lmax)
+    print("--- End of BFS Heuristic V3 ---")
+
+def BFS_Heuristic_V2(g):
+    print("--- BFS Heuristic V2 ---")
     # we follow a similar approach with dfs longest simple path
     graphLcc = CalculateLCC(g)
     vLcc = len(graphLcc)
     Lmax = 0
     usedKeys = []
-    print("BFS Heuristic With Rememberization will be called #",2*len(graphLcc)," times")
+    print("BFS Heuristic V2 will be called #",2*len(graphLcc)," times")
     numTimes = 0
     for v in graphLcc:
         numTimes += 1
-        print("BFS Heuristic #", numTimes)
-        BFS_Modified(g, v, usedKeys)
+        print("BFS Heuristic V2 #", numTimes)
+        BFS_Modified_For_V2(g, v, usedKeys)
         usedKeys.append(v)
         max_d_key = Get_Largest_D_Key(g,v)
         numTimes += 1
-        print("BFS Heuristic #", numTimes)
-        BFS_Modified(g, max_d_key, usedKeys)
+        print("BFS Heuristic V2 #", numTimes)
+        BFS_Modified_For_V2(g, max_d_key, usedKeys)
         max_d_key_2 = Get_Largest_D_Key(g,max_d_key)
         Lmax = max(Lmax, g.getD(max_d_key), g.getD(max_d_key_2))
-    print("For BFS Heuristic With Rememberization, Lmax:", Lmax)
+    print("For BFS Heuristic V2, Lmax:", Lmax)
 
-def BFS_Longest_Normal(g):
-    print("--- BFS Based Longest Simple Path ---")
+def BFS_Heuristic_V1(g):
+    print("--- BFS Heuristic V1 ---")
     # we follow a similar approach with dfs longest simple path
     graphLcc = CalculateLCC(g)
     Lmax = 0
     numTimes = 0
-    print("BFS Heuristic (normal) will be called #", 2 * len(graphLcc), " times")
+    print("BFS Heuristic V1 will be called #", 2 * len(graphLcc), " times")
     for v in graphLcc:
         numTimes += 1
-        print("BFS Heuristic #", numTimes)
+        print("BFS Heuristic V1 #", numTimes)
         BFS(g, v)
         max_d_key = Get_Largest_D_Key(g, v)
         numTimes += 1
-        print("BFS Heuristic #", numTimes)
+        print("BFS Heuristic V1 #", numTimes)
         BFS(g, max_d_key)
         max_d_key_2 = Get_Largest_D_Key(g, max_d_key)
         Lmax = max(Lmax, g.getD(max_d_key), g.getD(max_d_key_2))
-    print("For Normal BFS Heuristic, Lmax:", Lmax)
+    print("For BFS Heuristic V1, Lmax:", Lmax)
 
 # testing field
-fileName = "graph_4_n_300_r_0_08"
-#Generate_Geometric_Graph(100, 0.15, fileName)
-graph = Read_Geometric_Graph(fileName+".edges")
-Print_Simulation_Results(graph)
+#fileName = "graph_4_n_300_r_0_08.edges"
+#Generate_Geometric_Graph(40, 0.5, fileName)
+#graph = Read_Geometric_Graph(fileName)
+#Print_Simulation_Results(graph)
 #DFS_Based_Longest_Simple_Path(graph)
 #Dijkstra_Based_Longest_Simple_Path(graph)
 #A_Star_Based_Longest_Simple_Path(graph)
-#BFS_Heuristic_With_Rememberization(graph)
-#BFS_Longest_Normal(graph)
-usedKeys = []
-print("length:",len(usedKeys))
-s = Get_A_Source_Node(graph)
-print("s:",s)
-BFS_OPT3(graph,s, usedKeys)
-Get_Used_Keys_For_BFS_Opt3(graph)
-print(usedKeys)
-print("length:",len(usedKeys))
-##
-s2 = Get_A_Source_Node(graph)
-print("s2:",s2)
-while s2 == s and s2 in usedKeys:
-    print("re-selecting node...")
-    s2 = Get_A_Source_Node(graph)
-BFS_OPT3(graph, s2, usedKeys)
-Get_Used_Keys_For_BFS_Opt3(graph)
-print(usedKeys)
-print("length:",len(usedKeys))
-##
-s3 = Get_A_Source_Node(graph)
-print("s3:",s3)
-while s3 == s and s3 in usedKeys:
-    print("re-selecting node...")
-    s3 = Get_A_Source_Node(graph)
-BFS_OPT3(graph, s3, usedKeys)
-Get_Used_Keys_For_BFS_Opt3(graph)
-print(usedKeys)
-#print("length:",len(usedKeys))
-##
-s4 = Get_A_Source_Node(graph)
-#print("s4:",s4)
-while s4 == s and s4 in usedKeys:
-    print("re-selecting node...")
-    s4 = Get_A_Source_Node(graph)
-BFS_OPT3(graph, s4, usedKeys)
-Get_Used_Keys_For_BFS_Opt3(graph)
-print(usedKeys)
-#print("length:",len(usedKeys))
-##
-s5 = Get_A_Source_Node(graph)
-#print("s5:",s5)
-while s5 == s and s5 in usedKeys:
-    print("re-selecting node...")
-    s5 = Get_A_Source_Node(graph)
-BFS_OPT3(graph, s5, usedKeys)
-Get_Used_Keys_For_BFS_Opt3(graph)
-print(usedKeys)
-#print("length:",len(usedKeys))
-##
-s6 = Get_A_Source_Node(graph)
-#print("s6:",s6)
-while s6 == s and s6 in usedKeys:
-    print("re-selecting node...")
-    s6 = Get_A_Source_Node(graph)
-BFS_OPT3(graph, s6, usedKeys)
-Get_Used_Keys_For_BFS_Opt3(graph)
-print(usedKeys)
-print("length:",len(usedKeys))
+#BFS_Heuristic_V1(graph)
+#BFS_Heuristic_V2(graph)
+#BFS_Heuristic_V3(graph)
+
 
 #onlineGraph = Read_Online_Graph("inf-power.mtx",3)
 #Print_Simulation_Results(onlineGraph)
 #sys.setrecursionlimit(2000)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
-#BFS_Heuristic_With_Rememberization(onlineGraph)
-#BFS_Longest_Normal(onlineGraph)
+#BFS_Heuristic_V1(onlineGraph)
+#BFS_Heuristic_V2(onlineGraph)
+#BFS_Heuristic_V3(onlineGraph)
 
-#onlineGraph = Read_Online_Graph("DSJC500-5.mtx", 2)
-#Print_Simulation_Results(onlineGraph)
+onlineGraph = Read_Online_Graph("DSJC500-5.mtx", 2)
+Print_Simulation_Results(onlineGraph)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
-#BFS_Heuristic_With_Rememberization(onlineGraph)
-#BFS_Longest_Normal(onlineGraph)
+#BFS_Heuristic_V1(onlineGraph)
+#BFS_Heuristic_V2(onlineGraph)
+BFS_Heuristic_V3(onlineGraph)
 
 #onlineGraph = Read_Online_Graph("inf-euroroad.edges",2)
 #Print_Simulation_Results(onlineGraph)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
-#BFS_Longest_Normal(onlineGraph)
-#BFS_Heuristic_With_Rememberization(onlineGraph)
+#BFS_Heuristic_V1(onlineGraph)
+#BFS_Heuristic_V2(onlineGraph)
+#BFS_Heuristic_V3(onlineGraph)
 
 
 

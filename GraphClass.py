@@ -31,6 +31,7 @@ class Graph:
         self.ds = {}
         self.fs = {}
         self.hs = {}
+        self.lccVertices = []
 
     def add_vertex(self, vertex):
         self.vertices[vertex.name] = vertex.neighbors
@@ -116,6 +117,16 @@ class Graph:
 
     def printGraph(self):
         return str(self.adjacencyList())
+
+    def removeFromGraph(self, key):
+        del self.vertices[key]
+        del self.xPositions[key]
+        del self.yPositions[key]
+        del self.colors[key]
+        del self.pis[key]
+        del self.ds[key]
+        del self.fs[key]
+        del self.hs[key]
 
 a = Vertex('A', 0, 0.456)
 b = Vertex('B',0 ,0.1)

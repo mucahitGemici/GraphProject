@@ -234,6 +234,16 @@ def TestingLCC():
     print("LCC: ", LCC)
     print("--- END of LCC TESTING ---")
 
+def RemoveVerticesNotInLCC(graph, lccVertices):
+    print("previous #node: ", len(graph.vertices))
+    graphVertices = []
+    for v in graph.vertices:
+        graphVertices.append(v)
+    for v in graphVertices:
+        if v not in lccVertices:
+            print(v, " not in LCC, removing it from the graph...")
+            graph.removeFromGraph(v)
+    print("after #node: ", len(graph.vertices))
 def Print_Simulation_Results(g):
     print("-- SIMULATION RESULTS --")
     graphLcc = CalculateLCC(g)
@@ -260,6 +270,10 @@ def DFS_Based_Longest_Simple_Path(g):
     graphLcc = CalculateLCC(g)
     vLcc = len(graphLcc)
     Lmax = 0
+    # I tested by removing the vertices that are not in LCC,
+    # but that decreased the Lmax. So that, I disabled this option.
+    # If you want to see it, you can un-comment the line below and test it.
+    #RemoveVerticesNotInLCC(g, graphLcc)
     print("DFS will be run ", math.sqrt(vLcc), "times")
     for i in range(int(math.sqrt(vLcc)) + 1):
         print("DFS #", i)
@@ -354,6 +368,10 @@ def Dijkstra_Based_Longest_Simple_Path(g):
     graphLcc = CalculateLCC(g)
     vLcc = len(graphLcc)
     Lmax = 0
+    # I tested by removing the vertices that are not in LCC,
+    # but that decreased the Lmax. So that, I disabled this option.
+    # If you want to see it, you can un-comment the line below and test it.
+    #RemoveVerticesNotInLCC(g, graphLcc)
     print("Dijkstra will be run ", math.sqrt(vLcc) + 1 , " times")
     for i in range(int(math.sqrt(vLcc)) + 1):
         print("Dijkstra #", i)
@@ -425,6 +443,10 @@ def A_Star_Based_Longest_Simple_Path(g):
     graphLcc = CalculateLCC(g)
     vLcc = len(graphLcc)
     Lmax = 0
+    # I tested by removing the vertices that are not in LCC,
+    # but that decreased the Lmax. So that, I disabled this option.
+    # If you want to see it, you can un-comment the line below and test it.
+    #RemoveVerticesNotInLCC(g, graphLcc)
     for i in range(int(math.sqrt(vLcc)) + 1):
         # select random source and destination nodes
         s1 = random.choice(graphLcc)
@@ -544,6 +566,10 @@ def BFS_Heuristic_V3(g):
     sKey = random.choice(graphLcc)
     vLcc = len(graphLcc)
     Lmax = 0
+    # I tested by removing the vertices that are not in LCC,
+    # but that decreased the Lmax. So that, I disabled this option.
+    # If you want to see it, you can un-comment the line below and test it.
+    #RemoveVerticesNotInLCC(g, graphLcc)
     for v in range(int(math.sqrt(vLcc))):
         BFS_Modified_For_V3(g, sKey, path)
         highest_d_key = Get_Largest_D_Key(g, sKey)
@@ -561,6 +587,10 @@ def BFS_Heuristic_V2(g):
     graphLcc = CalculateLCC(g)
     vLcc = len(graphLcc)
     Lmax = 0
+    # I tested by removing the vertices that are not in LCC,
+    # but that decreased the Lmax. So that, I disabled this option.
+    # If you want to see it, you can un-comment the line below and test it.
+    # RemoveVerticesNotInLCC(g, graphLcc)
     usedKeys = []
     print("BFS Heuristic V2 will be called #",2*len(graphLcc)," times")
     numTimes = 0
@@ -582,6 +612,10 @@ def BFS_Heuristic_V1(g):
     # we follow a similar approach with dfs longest simple path
     graphLcc = CalculateLCC(g)
     Lmax = 0
+    # I tested by removing the vertices that are not in LCC,
+    # but that decreased the Lmax. So that, I disabled this option.
+    # If you want to see it, you can un-comment the line below and test it.
+    # RemoveVerticesNotInLCC(g, graphLcc)
     numTimes = 0
     print("BFS Heuristic V1 will be called #", 2 * len(graphLcc), " times")
     for v in graphLcc:
@@ -618,13 +652,13 @@ def BFS_Heuristic_V1(g):
 #BFS_Heuristic_V2(onlineGraph)
 #BFS_Heuristic_V3(onlineGraph)
 
-onlineGraph = Read_Online_Graph("DSJC500-5.mtx", 2)
-Print_Simulation_Results(onlineGraph)
+#onlineGraph = Read_Online_Graph("DSJC500-5.mtx", 2)
+#Print_Simulation_Results(onlineGraph)
 #DFS_Based_Longest_Simple_Path(onlineGraph)
 #Dijkstra_Based_Longest_Simple_Path(onlineGraph)
 #BFS_Heuristic_V1(onlineGraph)
 #BFS_Heuristic_V2(onlineGraph)
-BFS_Heuristic_V3(onlineGraph)
+#BFS_Heuristic_V3(onlineGraph)
 
 #onlineGraph = Read_Online_Graph("inf-euroroad.edges",2)
 #Print_Simulation_Results(onlineGraph)

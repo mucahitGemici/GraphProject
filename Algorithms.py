@@ -261,7 +261,7 @@ def Print_Simulation_Results(g):
     kLcc = (1 / vLcc) * sum_kV
     print("deltaLcc(maximum degree of nodes in LCC):", deltaLcc)
     print("kLcc(average degree of nodes in LCC): ", kLcc)
-    print("LCC Graph: ",graphLcc)
+    print("LCC: ",graphLcc)
 
     print("-- END OF SIMULATION RESULTS --")
 
